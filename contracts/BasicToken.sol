@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
-import "@openzeppelin/contracts/token/ERC777/ERC777.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./IProxyAccessControl.sol";
 
-contract AdvanceToken is ERC777 {
+contract BasicToken is ERC20 {
     IProxyAccessControl proxyAccessControl;
-    constructor(IProxyAccessControl _proxyAccessControl) ERC777("Bein Community", "BIC", new address[](0)) {
+    constructor(IProxyAccessControl _proxyAccessControl) ERC20("Bein Community", "BIC") {
         proxyAccessControl = _proxyAccessControl;
-        _mint(_msgSender(), 6339777879 * 1e18,  "", "");
+        _mint(_msgSender(), 6339777879 * 1e18);
     }
 
     function _spendAllowance(
@@ -21,13 +21,12 @@ contract AdvanceToken is ERC777 {
     }
 
     function _beforeTokenTransfer(
-        address operator,
         address from,
         address to,
         uint256 amount
     ) internal virtual override {
         proxyAccessControl.checkAllow();
-        super._beforeTokenTransfer(operator, from, to, amount);
+        super._beforeTokenTransfer(from, to, amount);
     }
 }
 
