@@ -6,11 +6,11 @@ const config: HardhatUserConfig = {
   // solidity: "0.8.17",
   defaultNetwork: "localhost",
   networks: {
+    hardhat: {
+    },
     localhost: {
       url: "http://127.0.0.1:8545",
       chainId: 1337
-    },
-    hardhat: {
     },
     testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
