@@ -3,10 +3,10 @@ import "@nomicfoundation/hardhat-toolbox";
 require("dotenv").config();
 
 const config: HardhatUserConfig = {
-  // solidity: "0.8.17",
   defaultNetwork: "localhost",
   networks: {
     hardhat: {
+      allowUnlimitedContractSize: true
     },
     localhost: {
       url: "http://127.0.0.1:8545",

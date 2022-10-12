@@ -18,8 +18,9 @@ async function main() {
   console.log(`Deploy success BasicToken on ${basicToken.address}`)
   await basicToken.deployed();
 
-  const AdvanceToken = await ethers.getContractFactory("BasicToken");
+  const AdvanceToken = await ethers.getContractFactory("AdvanceToken");
   const advanceToken = await AdvanceToken.deploy(proxyAccessControl.address);
+  await advanceToken.deployed();
 
   console.log(`Deploy success AdvanceToken on ${advanceToken.address}`)
 

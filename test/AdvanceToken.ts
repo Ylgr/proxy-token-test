@@ -15,9 +15,9 @@ describe("AdvanceToken", () => {
         const proxyAccessControl = await ProxyAccessControl.deploy();
 
         await proxyAccessControl.deployed();
-
-        const AdvanceToken = await ethers.getContractFactory("BasicToken");
+        const AdvanceToken = await ethers.getContractFactory("AdvanceToken");
         const advanceToken = await AdvanceToken.deploy(proxyAccessControl.address);
+
         return { advanceToken, deployer, proxyAccessControl, signers }
     }
 
@@ -34,9 +34,17 @@ describe("AdvanceToken", () => {
     describe("transfer", () => {
         it("user 2 cannot send token from user 1", async () => {
             const { advanceToken, deployer, signers } = await deployContract()
-            await expect(advanceToken.connect(signers[1]).transferFrom(deployer, advanceToken.address, '10000000000000000000'))
-                .to.be.revertedWith('ERC20: insufficient allowance')
+            await expect(
+                advanceToken.connect(signers[1]).operatorSend(
+                    deployer,
+                    signers[1].address,
+                    '10000000000000000000',
+                    '0x00000000000000000000000000000000',
+                    '0x00000000000000000000000000000000'
+                )
+            ).to.revertedWith('ERC777: caller is not an operator for holder')
         })
+
     })
 
 
