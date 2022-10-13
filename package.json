@@ -1,7 +1,8 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "deploy-ganache": "npx hardhat run --network localhost scripts/deploy.ts"
+    "deploy-ganache": "npx hardhat run --network localhost scripts/deploy.ts",
+    "test": "npx hardhat test"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
