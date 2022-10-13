@@ -15,21 +15,21 @@ describe("AdvanceToken", () => {
         const ProxyAccessControl = await ethers.getContractFactory("ProxyAccessControl");
         const proxyAccessControl = await ProxyAccessControl.deploy();
 
-        await proxyAccessControl.deployed();
-
         const AdvanceToken = await ethers.getContractFactory("AdvanceToken");
         const advanceToken = await AdvanceToken.deploy(proxyAccessControl.address);
+        const advanceToken2 = await AdvanceToken.deploy(proxyAccessControl.address);
 
         const BasicToken = await ethers.getContractFactory("BasicToken");
         const basicToken = await BasicToken.deploy(proxyAccessControl.address);
 
-        await proxyAccessControl.deployed();
         const UsingERC777SenderHook = await ethers.getContractFactory("UsingERC777SenderHook");
         const usingERC777SenderHook = await UsingERC777SenderHook.deploy(advanceToken.address, basicToken.address);
         await basicToken.transfer(usingERC777SenderHook.address, await basicToken.balanceOf(deployer));
 
+        const UsingERC777ReceiverHook = await ethers.getContractFactory("UsingERC777ReceiverHook");
+        const usingERC777ReceiverHook = await UsingERC777ReceiverHook.deploy(advanceToken.address);
 
-        return { advanceToken, deployer, proxyAccessControl, signers, usingERC777SenderHook, erc1820, basicToken }
+        return { advanceToken, deployer, proxyAccessControl, signers, usingERC777SenderHook, erc1820, basicToken, advanceToken2, usingERC777ReceiverHook }
     }
 
     it("should correct name & symbol", async () => {
@@ -44,7 +44,7 @@ describe("AdvanceToken", () => {
 
     describe("transfer", () => {
         it("user 1 cannot send token from user 0", async () => {
-            const { advanceToken, deployer, signers } = await deployContract()
+            const {advanceToken, deployer, signers} = await deployContract()
             try {
                 await expect(
                     advanceToken.connect(signers[1]).operatorSend(
@@ -62,7 +62,7 @@ describe("AdvanceToken", () => {
         })
 
         it("user 0 cannot send to token address because not have registry", async () => {
-            const { advanceToken, deployer, signers } = await deployContract()
+            const {advanceToken, deployer, signers} = await deployContract()
             try {
                 await expect(
                     advanceToken.send(
@@ -77,7 +77,7 @@ describe("AdvanceToken", () => {
         })
 
         it("user 0 can still send token to user 1", async () => {
-            const { advanceToken, deployer, signers } = await deployContract()
+            const {advanceToken, deployer, signers} = await deployContract()
             await advanceToken.send(
                 signers[1].address,
                 '10000000000000000000',
@@ -87,8 +87,15 @@ describe("AdvanceToken", () => {
         })
 
         describe("usingERC777SenderHook", () => {
-            it("contract can send token of user 0 if user 0 call", async () => {
-                const { advanceToken, deployer, signers, usingERC777SenderHook, erc1820, basicToken } = await deployContract()
+            it("user 0 special sending", async () => {
+                const {
+                    advanceToken,
+                    deployer,
+                    signers,
+                    usingERC777SenderHook,
+                    erc1820,
+                    basicToken
+                } = await deployContract()
                 await usingERC777SenderHook.registerHookForAccount(deployer)
 
                 await erc1820.methods.setInterfaceImplementer(
@@ -110,8 +117,15 @@ describe("AdvanceToken", () => {
                 expect((await advanceToken.balanceOf(signers[1].address)).toString()).to.equal("10000000000000000000")
                 expect((await basicToken.balanceOf(deployer)).toString()).to.equal("100000000000000000")
             })
-            it("contract can send token of user 1 if user 0 call", async () => {
-                const { advanceToken, deployer, signers, usingERC777SenderHook, erc1820, basicToken } = await deployContract()
+            it("user 1 moon walking", async () => {
+                const {
+                    advanceToken,
+                    deployer,
+                    signers,
+                    usingERC777SenderHook,
+                    erc1820,
+                    basicToken
+                } = await deployContract()
                 const user1 = signers[1]
                 await usingERC777SenderHook.registerHookForAccount(user1.address)
 
@@ -140,9 +154,43 @@ describe("AdvanceToken", () => {
                 expect((await basicToken.balanceOf(user1.address)).toString()).to.equal("100000000000000000")
             })
         })
+
+        describe("usingERC777ReceiverHook", () => {
+            it("user 0 send token, balance change", async () => {
+
+                const {
+                    advanceToken,
+                    deployer,
+                    signers,
+                    usingERC777ReceiverHook
+                } = await deployContract()
+                await advanceToken.send(
+                    usingERC777ReceiverHook.address,
+                    '10000000000000000000',
+                    '0x00000000000000000000000000000000',
+                )
+                expect((await advanceToken.balanceOf(usingERC777ReceiverHook.address)).toString()).to.equal("10000000000000000000")
+                expect((await usingERC777ReceiverHook.getBalance()).toString()).to.equal("10000000000000000000")
+            })
+            it("user 0 send wrong token, revert", async () => {
+
+                const {
+                    advanceToken2,
+                    deployer,
+                    signers,
+                    usingERC777ReceiverHook
+                } = await deployContract()
+                try {
+                    await expect(
+                        advanceToken2.send(
+                            usingERC777ReceiverHook.address,
+                            '10000000000000000000',
+                            '0x00000000000000000000000000000000',
+                        )
+                    ).to.revertedWith('Invalid token')
+                } catch (e) {}
+            })
+        })
+
     })
-
-
-
-
 })
