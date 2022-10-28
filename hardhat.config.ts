@@ -3,7 +3,7 @@ import "@nomicfoundation/hardhat-toolbox";
 require("dotenv").config();
 
 const config: HardhatUserConfig = {
-  defaultNetwork: "localhost",
+  defaultNetwork: "API_KEY",
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true
@@ -16,6 +16,7 @@ const config: HardhatUserConfig = {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
       gasPrice: 20000000000,
+      accounts: [process.env.PRIVATE_KEY as string],
     },
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
@@ -39,7 +40,10 @@ const config: HardhatUserConfig = {
   },
   mocha: {
     timeout: 20000
-  }
+  },
+  etherscan: {
+    apiKey: process.env.API_KEY,
+  },
 };
 
 export default config;
