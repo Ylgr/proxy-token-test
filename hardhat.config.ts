@@ -3,7 +3,7 @@ import "@nomicfoundation/hardhat-toolbox";
 require("dotenv").config();
 
 const config: HardhatUserConfig = {
-  defaultNetwork: "API_KEY",
+  defaultNetwork: "localhost",
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true
