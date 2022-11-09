@@ -25,6 +25,6 @@ contract IntermediateTokenConsumer {
         console.log("allow: %s", allowance);
         console.log("value: %s", value);
 
-    intermediateToken.transferFrom(owner, destination, value);
+        intermediateToken.transferFrom(owner, destination, value);
     }
 }

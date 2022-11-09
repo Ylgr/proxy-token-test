@@ -77,6 +77,7 @@ describe("IntermediateToken", () => {
                 {owner, spender, value, nonce, deadline}
             )
             console.log('user1TransferSignature: ', user1TransferSignature)
+            const {v, r, s} = fromRpcSig(user1TransferSignature);
             console.log('{ v, r, s }: ', {v, r, s})
             console.log('await ethers.provider.getBlockNumber(): ', await ethers.provider.getBlockNumber())
             await intermediateTokenConsumer.connect(user2).oppTransfer(user3.address, owner, spender, value, deadline, v, r, s)
