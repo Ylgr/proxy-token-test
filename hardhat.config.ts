@@ -3,7 +3,7 @@ import "@nomicfoundation/hardhat-toolbox";
 require("dotenv").config();
 
 const config: HardhatUserConfig = {
-  defaultNetwork: "localhost",
+  // defaultNetwork: "localhost",
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true
@@ -25,18 +25,17 @@ const config: HardhatUserConfig = {
     }
   },
   solidity: {
-    version: "0.8.17",
-    settings: {
-      optimizer: {
-        enabled: true
-      }
-    }
-  },
-  paths: {
-    sources: "./contracts",
-    tests: "./test",
-    cache: "./cache",
-    artifacts: "./artifacts"
+    compilers: [
+      {
+        version: '0.8.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 10000,
+          },
+        },
+      },
+    ],
   },
   mocha: {
     timeout: 20000
